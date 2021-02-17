@@ -1,0 +1,18 @@
+{
+  "name": "tweet-meteor",
+  "scripts": {
+    "dev": "HOST=0.0.0.0 nuxt",
+    "build": "nuxt build",
+    "generate": "nuxt generate",
+    "start": "HOST=0.0.0.0 nuxt start"
+  },
+  "dependencies": {
+    "nuxt": "^2.15.0",
+    "twitter": "^1.7.1"
+  },
+  "devDependencies": {
+    "fibers": "^5.0.0",
+    "sass": "^1.32.7",
+    "sass-loader": "10"
+  }
+}
