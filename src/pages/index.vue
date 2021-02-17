@@ -5,8 +5,16 @@
 </template>
 
 <script>
+import TwitterClient from "~/models/Twitter/TwitterClient";
+
 export default {
-  name: "index"
+  name: "index",
+  mounted() {
+    const client = new TwitterClient();
+    client.client.get('search/tweets', {q: '#タマクラ'}, function (error, tweets, response) {
+      console.log(tweets);
+    });
+  }
 }
 </script>
 
