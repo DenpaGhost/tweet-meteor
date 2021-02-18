@@ -17,7 +17,9 @@ export default {
     this.query = process.env.TWEET_SEARCH_QUERY;
     this.interval = process.env.TWEET_FETCH_INTERVAL_SECOND;
 
-    // this.tweetFetchRoutine();
+    this.visibleAuthor = process.env.VISIBLE_AUTHOR === 'true';
+
+    this.tweetFetchRoutine();
   },
   data: function () {
     return {
@@ -26,7 +28,8 @@ export default {
       query: '',
       interval: 60,
       isError: false,
-      errorStatus: null
+      errorStatus: null,
+      visibleAuthor: false
     }
   },
   methods: {
@@ -37,7 +40,7 @@ export default {
           try {
             const since = this.lastFetching;
             const response = await this.client.search(
-                this.query,
+                `${this.query} -is:retweet`,
                 since?.toISOString());
 
             const tweets = [...response.data];
@@ -47,7 +50,7 @@ export default {
             }
             this.lastFetching = SearchDate.now.date;
 
-            console.log(tweets);
+            this.meteorTweets(tweets);
 
             this.isError = false;
           } catch (e) {
@@ -60,7 +63,7 @@ export default {
       }
     },
     fetchNextTweet: async function (nextToken, since) {
-      const response = await this.client.search(this.query, since, nextToken);
+      const response = await this.client.search(`${this.query} -is:retweet`, since, nextToken);
       const tweets = [...response.data];
 
       if (response.meta?.next_token) {
@@ -68,6 +71,54 @@ export default {
       }
 
       return tweets;
+    },
+    meteorTweets: async function (tweets) {
+      const meteorInterval = (this.interval * 1000) / tweets.length;
+
+      for (let i = 0; i < tweets.length; i++) {
+        const tweet = tweets[i];
+
+        const comment = tweet.text.replace(/\n/g, ' ').replace(new RegExp(`${this.query}`, 'g'), ' ');
+        const author = this.client.getUser(tweet.author_id);
+
+        if (this.visibleAuthor) {
+          this.instantiateDOM(comment, author.name);
+        } else {
+          this.instantiateDOM(comment);
+        }
+
+        await new Promise(resolve => setTimeout(resolve, meteorInterval));
+      }
+    },
+    instantiateDOM: function (comment, author = null) {
+      const div = document.createElement('div');
+      div.classList.add('comment');
+      div.style.position = 'absolute';
+      div.style.left = '1920px';
+
+      const commentDiv = document.createElement('div');
+      commentDiv.innerText = comment;
+      div.appendChild(commentDiv);
+
+      if (!!author) {
+        const authorDiv = document.createElement('div');
+        authorDiv.innerText = author;
+        div.appendChild(authorDiv);
+      }
+
+      this.frame.appendChild(div);
+
+      const {width, height} = div.getBoundingClientRect();
+      div.style.top = `${(1080 - height) * Math.random()}px`;
+
+      new Promise((resolve) => setTimeout(() => {
+        div.style.transform = `translateX(${-1920 - width}px)`;
+        resolve();
+      }, 0));
+
+      new Promise(resolve => setTimeout(() => {
+        div.remove();
+      }, 10000));
     }
   },
   computed: {
@@ -107,5 +158,17 @@ body {
 
 .green {
   display: none;
+}
+
+.comment {
+  transform: translateX(0);
+  transition-property: transform;
+  transition-duration: 10s;
+  transition-timing-function: linear;
+  white-space: nowrap;
+
+  & > div:nth-child(2) {
+    font-size: 18pt;
+  }
 }
 </style>
