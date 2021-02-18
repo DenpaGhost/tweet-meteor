@@ -7,23 +7,9 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - ./src/front:/app/
-    links:
-      - api
+      - ./src/:/app/
     working_dir: /app/
     tty: true
     stdin_open: true
     environment:
       - CHOKIDAR_USEPOLLING=true
-
-  api:
-    build: docker/php
-    expose:
-      - 8080
-    ports:
-      - 8080:80
-    volumes:
-      - ./src/backend:/var/www/app/
-    working_dir: /var/www/app
-    environment:
-      TZ: "Asia/Tokyo"
