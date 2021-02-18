@@ -56,3 +56,9 @@ docker-compose exec app yarn run dev
 # use local yarn (package.jsonを書き換える必要があるかも)
 yarn run dev
 ```
+
+## ブラウザで表示
+`localhost:3000`
+
+OBS Studioにブラウザソースとして読み込ませる前提で作成しています。
+1920px*1080pxの画面のみに対応で、OBS StudioのカスタムCSSで文字色やサイズの指定をします。
