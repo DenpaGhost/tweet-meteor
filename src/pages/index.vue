@@ -1,10 +1,5 @@
 <template>
   <div class="frame" ref="frame">
-    <div class="comment"
-         style="position: absolute; left: 1920px; top: 200px; transform: translateX(-2500px);">
-      テスト
-    </div>
-
     <div class="notify" :class="{error: isError, green: !isError}">
       {{ errorStatus ? errorStatus : '-' }} - {{ lastFetching ? lastFetching.toLocaleString() : '-' }}
     </div>
@@ -17,10 +12,11 @@ import SearchDate from "../models/SearchDate";
 
 export default {
   name: "index",
-  async mounted() {
+  mounted() {
     this.client = new TwitterClient(this.$axios);
     this.query = process.env.TWEET_SEARCH_QUERY;
     this.interval = process.env.TWEET_FETCH_INTERVAL_SECOND;
+
     this.visibleAuthor = process.env.VISIBLE_AUTHOR === 'true';
 
     this.tweetFetchRoutine();
@@ -76,23 +72,13 @@ export default {
 
       return tweets;
     },
-<
-<
-<
-<
-<
-<< HEAD
     meteorTweets: async function (tweets) {
-const meteorInterval = (this.interval * 1000) / tweets.length;
+      const meteorInterval = (this.interval * 1000) / tweets.length;
 
-for (let i = 0; i
-< tweets.length; i++) {
-const tweet = tweets[i];
+      for (let i = 0; i < tweets.length; i++) {
+        const tweet = tweets[i];
 
-const comment = tweet.text.replace(/\n/g, ' ').replace(new RegExp(`$
-{
-  this.query
-}`, 'g'), ' ');
+        const comment = tweet.text.replace(/\n/g, ' ').replace(new RegExp(`${this.query}`, 'g'), ' ');
         const author = this.client.getUser(tweet.author_id);
 
         if (this.visibleAuthor) {
@@ -124,18 +110,6 @@ const comment = tweet.text.replace(/\n/g, ' ').replace(new RegExp(`$
 
       const {width, height} = div.getBoundingClientRect();
       div.style.top = `${(1080 - height) * Math.random()}px`;
-=======
-    instantiateDOM: function (tweets) {
-      const div = document.createElement('div');
-      div.innerText = tweets;
-      div.classList.add('comment');
-      div.style.position = 'absolute';
-      div.style.left = '1920px';
-      this.frame.appendChild(div);
-      const {width, height} = div.getBoundingClientRect();
-
-      div.style.top = `${(300 - height) * Math.random()}px`;
->>>>>>> 5ab960d24bc11c7974a41575f2669e7f2f49b295
 
       new Promise((resolve) => setTimeout(() => {
         div.style.transform = `translateX(${-1920 - width}px)`;
@@ -145,10 +119,6 @@ const comment = tweet.text.replace(/\n/g, ' ').replace(new RegExp(`$
       new Promise(resolve => setTimeout(() => {
         div.remove();
       }, 10000));
-<<<<<<< HEAD
-=======
-
->>>>>>> 5ab960d24bc11c7974a41575f2669e7f2f49b295
     }
   },
   computed: {
@@ -196,8 +166,9 @@ body {
   transition-duration: 10s;
   transition-timing-function: linear;
   white-space: nowrap;
-< < < < < < < HEAD & > div:nth-child(2) {
-  font-size: 18pt;
-} == == == = > > > > > > > 5 ab960d24bc11c7974a41575f2669e7f2f49b295
+
+  & > div:nth-child(2) {
+    font-size: 18pt;
+  }
 }
 </style>
