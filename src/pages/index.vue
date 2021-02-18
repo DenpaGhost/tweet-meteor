@@ -1,5 +1,5 @@
 <template>
-  <div class="frame">
+  <div class="frame" ref="frame">
     <div class="notify" :class="{error: isError, green: !isError}">
       {{ errorStatus ? errorStatus : '-' }} - {{ lastFetching ? lastFetching.toLocaleString() : '-' }}
     </div>
@@ -69,6 +69,11 @@ export default {
 
       return tweets;
     }
+  },
+  computed: {
+    frame: function () {
+      return this.$refs['frame'];
+    }
   }
 }
 </script>
@@ -77,14 +82,16 @@ export default {
 body {
   margin: 0;
   padding: 0;
+  overflow: hidden;
 
   font-size: 24pt;
 }
 
 .frame {
-  height: 100vh;
-  width: 100vw;
+  width: 1920px;
+  height: 1080px;
   position: relative;
+  overflow: hidden;
 }
 
 .notify {
