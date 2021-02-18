@@ -1,6 +1,8 @@
 <template>
   <div class="frame">
-
+    <div class="notify" :class="{error: isError, green: !isError}">
+      {{ errorStatus ? errorStatus : '-' }} - {{ lastFetching ? lastFetching.toLocaleString() : '-' }}
+    </div>
   </div>
 </template>
 
@@ -15,34 +17,43 @@ export default {
     this.query = process.env.TWEET_SEARCH_QUERY;
     this.interval = process.env.TWEET_FETCH_INTERVAL_SECOND;
 
-    this.tweetFetchRoutine();
+    // this.tweetFetchRoutine();
   },
   data: function () {
     return {
       lastFetching: null,
       client: null,
       query: '',
-      interval: 60
+      interval: 60,
+      isError: false,
+      errorStatus: null
     }
   },
   methods: {
     tweetFetchRoutine: async function () {
       while (true) {
         await new Promise(async (resolve) => {
-          const since = this.lastFetching;
 
-          const response = await this.client.search(
-              this.query,
-              since?.toISOString());
+          try {
+            const since = this.lastFetching;
+            const response = await this.client.search(
+                this.query,
+                since?.toISOString());
 
-          const tweets = [...response.data];
+            const tweets = [...response.data];
 
-          if (response.meta.next_token && this.lastFetching) {
-            tweets.push(...(await this.fetchNextTweet(response.meta.next_token, since)));
+            if (response.meta.next_token && this.lastFetching) {
+              tweets.push(...(await this.fetchNextTweet(response.meta.next_token, since)));
+            }
+            this.lastFetching = SearchDate.now.date;
+
+            console.log(tweets);
+
+            this.isError = false;
+          } catch (e) {
+            this.isError = true;
+            this.errorStatus = `${(e?.response?.data?.title) ?? 'unknown'}(${(e?.response?.status) ?? '-'})`;
           }
-          this.lastFetching = SearchDate.now.date;
-
-          console.log(tweets);
 
           setTimeout(() => resolve(), this.interval * 1000);
         });
@@ -66,11 +77,28 @@ export default {
 body {
   margin: 0;
   padding: 0;
+
+  font-size: 24pt;
 }
 
 .frame {
   height: 100vh;
   width: 100vw;
   position: relative;
+}
+
+.notify {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+}
+
+.green {
+  display: none;
 }
 </style>
