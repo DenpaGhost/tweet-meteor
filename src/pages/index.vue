@@ -1,5 +1,10 @@
 <template>
   <div class="frame" ref="frame">
+    <div class="comment"
+         style="position: absolute; left: 1920px; top: 200px; transform: translateX(-2500px);">
+      テスト
+    </div>
+
     <div class="notify" :class="{error: isError, green: !isError}">
       {{ errorStatus ? errorStatus : '-' }} - {{ lastFetching ? lastFetching.toLocaleString() : '-' }}
     </div>
@@ -12,12 +17,20 @@ import SearchDate from "../models/SearchDate";
 
 export default {
   name: "index",
-  mounted() {
+  async mounted() {
     this.client = new TwitterClient(this.$axios);
     this.query = process.env.TWEET_SEARCH_QUERY;
     this.interval = process.env.TWEET_FETCH_INTERVAL_SECOND;
 
     // this.tweetFetchRoutine();
+
+    for (let i = 0; i < 10; i++) {
+      this.instantiateDOM('テスト');
+      this.instantiateDOM('abababababababababababababababababab');
+      await new Promise(resolve => {
+        setTimeout(resolve, 500);
+      });
+    }
   },
   data: function () {
     return {
@@ -68,6 +81,27 @@ export default {
       }
 
       return tweets;
+    },
+    instantiateDOM: function (tweets) {
+      const div = document.createElement('div');
+      div.innerText = tweets;
+      div.classList.add('comment');
+      div.style.position = 'absolute';
+      div.style.left = '1920px';
+      this.frame.appendChild(div);
+      const {width, height} = div.getBoundingClientRect();
+
+      div.style.top = `${(300 - height) * Math.random()}px`;
+
+      new Promise((resolve) => setTimeout(() => {
+        div.style.transform = `translateX(${-1920 - width}px)`;
+        resolve();
+      }, 0));
+
+      new Promise(resolve => setTimeout(() => {
+        div.remove();
+      }, 10000));
+
     }
   },
   computed: {
@@ -107,5 +141,13 @@ body {
 
 .green {
   display: none;
+}
+
+.comment {
+  transform: translateX(0);
+  transition-property: transform;
+  transition-duration: 10s;
+  transition-timing-function: linear;
+  white-space: nowrap;
 }
 </style>
