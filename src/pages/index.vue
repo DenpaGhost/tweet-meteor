@@ -19,6 +19,15 @@ export default {
 
     this.visibleAuthor = process.env.VISIBLE_AUTHOR === 'true';
 
+    const now = SearchDate.now.date;
+    if (now.getSeconds() - 20 >= 0) {
+      now.setSeconds(now.getSeconds() - 20);
+    } else if (now.getMinutes() - 1 >= 0) {
+      now.setMinutes(now.getMinutes() - 1);
+      now.setSeconds(40);
+    }
+    this.lastFetching = now;
+
     this.tweetFetchRoutine();
   },
   data: function () {
@@ -31,7 +40,8 @@ export default {
       errorStatus: null,
       visibleAuthor: false
     }
-  },
+  }
+  ,
   methods: {
     tweetFetchRoutine: async function () {
       while (true) {
@@ -43,25 +53,29 @@ export default {
                 `${this.query} -is:retweet`,
                 since?.toISOString());
 
-            const tweets = [...response.data];
+            if (response.meta.result_count > 0) {
+              const tweets = [...response.data];
 
-            if (response.meta.next_token && this.lastFetching) {
-              tweets.push(...(await this.fetchNextTweet(response.meta.next_token, since)));
+              if (response.meta.next_token && this.lastFetching) {
+                tweets.push(...(await this.fetchNextTweet(response.meta.next_token, since)));
+              }
+              this.lastFetching = SearchDate.now.date;
+
+              this.meteorTweets(tweets);
             }
-            this.lastFetching = SearchDate.now.date;
-
-            this.meteorTweets(tweets);
 
             this.isError = false;
           } catch (e) {
+            console.dir(e);
             this.isError = true;
-            this.errorStatus = `${(e?.response?.data?.title) ?? 'unknown'}(${(e?.response?.status) ?? '-'})`;
+            this.errorStatus = `${(e?.message) ?? 'unknown'}(${(e?.response?.status) ?? '-'})`;
           }
 
           setTimeout(() => resolve(), this.interval * 1000);
         });
       }
-    },
+    }
+    ,
     fetchNextTweet: async function (nextToken, since) {
       const response = await this.client.search(`${this.query} -is:retweet`, since, nextToken);
       const tweets = [...response.data];
@@ -71,7 +85,8 @@ export default {
       }
 
       return tweets;
-    },
+    }
+    ,
     meteorTweets: async function (tweets) {
       const meteorInterval = (this.interval * 1000) / tweets.length;
 
@@ -89,7 +104,8 @@ export default {
 
         await new Promise(resolve => setTimeout(resolve, meteorInterval));
       }
-    },
+    }
+    ,
     instantiateDOM: function (comment, author = null) {
       const div = document.createElement('div');
       div.classList.add('comment');
@@ -120,7 +136,8 @@ export default {
         div.remove();
       }, 10000));
     }
-  },
+  }
+  ,
   computed: {
     frame: function () {
       return this.$refs['frame'];
