@@ -54,10 +54,10 @@ export default {
                 since?.toISOString());
 
             if (response.meta.result_count > 0) {
-              const tweets = [...response.data];
+              const tweets = [...(response.data.reverse())];
 
               if (response.meta.next_token && this.lastFetching) {
-                tweets.push(...(await this.fetchNextTweet(response.meta.next_token, since)));
+                tweets.push(...((await this.fetchNextTweet(response.meta.next_token, since)).reverse()));
               }
               this.lastFetching = SearchDate.now.date;
 
@@ -185,7 +185,7 @@ body {
   white-space: nowrap;
 
   & > div:nth-child(2) {
-    font-size: 18pt;
+    font-size: 20pt;
   }
 }
 </style>
