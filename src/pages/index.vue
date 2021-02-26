@@ -93,7 +93,7 @@ export default {
       for (let i = 0; i < tweets.length; i++) {
         const tweet = tweets[i];
 
-        const comment = tweet.text.replace(/\n/g, ' ').replace(new RegExp(`${this.query}`, 'g'), ' ');
+        const comment = tweet.text.replace(/\n/g, ' ');
         const author = this.client.getUser(tweet.author_id);
 
         if (this.visibleAuthor) {
